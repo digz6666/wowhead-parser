@@ -26,8 +26,7 @@ public class ParseCreature {
     public void parseFromUrl(String url) throws Exception {
         Connection con = Jsoup.connect(url);
         Document doc = con.get();
-        /*System.out.println("doc: " + doc);
-        Elements npcTab = doc.select("div#tab-npcs");
+        /*Elements npcTab = doc.select("div#tab-npcs");
         System.out.println("npcTab: " + npcTab);
         if(npcTab != null) {
             Elements npcLinks = npcTab.select("a[href]");
@@ -54,8 +53,8 @@ public class ParseCreature {
                 mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
                 mapper.configure(DeserializationFeature.FAIL_ON_INVALID_SUBTYPE, false);
                 mapper.configure(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES, false);
-                //List<NpcInfo> npcInfoList = mapper.readValue(line, NpcInfo.class);
-                //System.out.println(npcInfoList);
+                
+                exportToExcel(mapper.readValue(line, List.class));
                 break;
             }
         }
@@ -82,26 +81,29 @@ public class ParseCreature {
                 mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
                 mapper.configure(DeserializationFeature.FAIL_ON_INVALID_SUBTYPE, false);
                 mapper.configure(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES, false);
-                List npcInfoList = mapper.readValue(line, List.class);
                 
-                // import to excel
-                Workbook wb = new XSSFWorkbook();
-                Sheet sheet = wb.createSheet("NPC");
-                for (int i = 0; i < npcInfoList.size(); i++) {
-                    Map npcInfo = (Map) npcInfoList.get(i);
-                    Row row = sheet.createRow(i);
-                    Cell idCell = row.createCell(0);
-                    idCell.setCellValue(npcInfo.get("id").toString());
-                    
-                    Cell nameCell = row.createCell(1);
-                    nameCell.setCellValue(npcInfo.get("name").toString());
-                }
-                
-                FileOutputStream fos = new FileOutputStream("npc_list.xlsx");
-                wb.write(fos);
+                exportToExcel(mapper.readValue(line, List.class));
                 break;
             }
         }
+    }
+    
+    private void exportToExcel(List npcInfoList) throws Exception {
+        // import to excel
+        Workbook wb = new XSSFWorkbook();
+        Sheet sheet = wb.createSheet("NPC");
+        for (int i = 0; i < npcInfoList.size(); i++) {
+            Map npcInfo = (Map) npcInfoList.get(i);
+            Row row = sheet.createRow(i);
+            Cell idCell = row.createCell(0);
+            idCell.setCellValue(npcInfo.get("id").toString());
+
+            Cell nameCell = row.createCell(1);
+            nameCell.setCellValue(npcInfo.get("name").toString());
+        }
+
+        FileOutputStream fos = new FileOutputStream("npc_list.xlsx");
+        wb.write(fos);
     }
     
     public static void main(String[] args) {
